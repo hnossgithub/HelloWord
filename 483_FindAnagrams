@@ -35,24 +35,16 @@ public class Solution {
         if(s==null || p==null)  return null;
         int sLen = s.length();
         int pLen = p.length();
-        int[] map = new int[26];
+        int[] hash = new int[26];
         for(int i=0;i<pLen;i++){
-            map[p.charAt(i)-'a']++;
+            hash[p.charAt(i)-'a']++;
         }
-        int start = 0;
+        int left = 0, right = 0, count = pLen;
         List<Integer> res = new LinkedList<>();
-        while(sLen-start>=pLen){
-            int[] dupMap = map.clone();
-            int cur;
-            for(cur=0;cur<pLen;cur++){
-                if(--dupMap[s.charAt(start+cur)-'a']<0){
-                    break;
-                }
-            }
-            if(cur==pLen){
-                res.add(start);
-            }
-            start++;
+        while(right < sLen){
+            if(--hash[s.charAt(right++)-'a']>=0)    count--;
+            if(count==0)    res.add(left);
+            if(right-left==pLen && ++hash[s.charAt(left++)-'a']>=1) count++;
         }
         return res;
     }
