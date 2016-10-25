@@ -1,0 +1,53 @@
+/**
+Given a non-empty array of numbers, a0, a1, a2, … , an-1, where 0 ≤ ai < 231.
+
+Find the maximum result of ai XOR aj, where 0 ≤ i, j < n.
+
+Could you do this in O(n) runtime?
+
+Example:
+
+Input: [3, 10, 5, 25, 2, 8]
+
+Output: 28
+
+Explanation: The maximum result is 5 ^ 25 = 28.
+**/
+public class Solution {
+    class Trie{
+        Trie[] children;
+        public Trie(){
+            children = new Trie[2];
+        }
+    }
+    public int findMaximumXOR(int[] nums) {
+        Trie root = new Trie();
+        //Init Trie
+        for(int num:nums){
+            Trie node = root;
+            for(int i=31; i>=0; i--){
+                 int curBit = num >> i & 1;
+                 if(node.children[curBit]==null){
+                     node.children[curBit] = new Trie();
+                 }
+                 node = node.children[curBit];
+            }
+        }
+        int max = Integer.MIN_VALUE;
+        for(int num:nums){
+            Trie node = root;
+            int sum = 0;
+            for(int i=31;i>=0;i--){
+                int curBit = num >> i & 1;
+                if(node.children[curBit^1]!=null){
+                    sum += 1<<i;
+                    node = node.children[curBit^1];
+                }else{
+                    node = node.children[curBit];
+                }
+            }
+            max = Math.max(max, sum);
+        }
+        return max;
+    }
+}
