@@ -1,0 +1,104 @@
+/**
+Given an m x n matrix of non-negative integers representing the height of each unit cell in a continent, the "Pacific ocean" touches the left and top edges of the matrix and the "Atlantic ocean" touches the right and bottom edges.
+
+Water can only flow in four directions (up, down, left, or right) from a cell to another one with height equal or lower.
+
+Find the list of grid coordinates where water can flow to both the Pacific and Atlantic ocean.
+
+Note:
+The order of returned grid coordinates does not matter.
+Both m and n are less than 150.
+Example:
+
+Given the following 5x5 matrix:
+
+  Pacific ~   ~   ~   ~   ~ 
+       ~  1   2   2   3  (5) *
+       ~  3   2   3  (4) (4) *
+       ~  2   4  (5)  3   1  *
+       ~ (6) (7)  1   4   5  *
+       ~ (5)  1   1   2   4  *
+          *   *   *   *   * Atlantic
+
+Return:
+
+[[0, 4], [1, 3], [1, 4], [2, 2], [3, 0], [3, 1], [4, 0]] (positions with parentheses in above matrix).
+**/
+public class Solution {
+    class Grid{
+        int low;
+        int col;
+        Grid(int low, int col){
+            this.low = low;
+            this.col = col;
+        }
+        int[] toArray(){
+            int[] arr = new int[2];
+            arr[0] = low;
+            arr[1] = col;
+            return arr;
+        }
+    }
+    public List<int[]> pacificAtlantic(int[][] matrix) {
+        /*
+        [[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,8],[5,1,1,2,4]]
+        */
+        List<int[]> list = new LinkedList<>();
+        if(matrix==null)    return list;
+        int m = matrix.length;
+        if(m==0)    return list;
+        int n = matrix[0].length;
+        boolean[][] visitedPac = new boolean[m][n];
+        boolean[][] visitedAtl = new boolean[m][n];
+        Queue<Grid> flow2Pac = new LinkedList<>();
+        Queue<Grid> flow2Atl = new LinkedList<>();
+        for(int i=0;i<m;i++){
+            flow2Pac.offer(new Grid(i, 0));
+            visitedPac[i][0] = true;
+        }
+        for(int j=0;j<n;j++){
+            flow2Pac.offer(new Grid(0, j));
+            visitedPac[0][j] = true;
+        }
+        for(int i=m-1;i>=0;i--){
+            flow2Atl.offer(new Grid(i, n-1));
+            visitedAtl[i][n-1] = true;
+        }
+        for(int j=n-1;j>=0;j--){
+            flow2Atl.offer(new Grid(m-1, j));
+            visitedAtl[m-1][j] = true;
+        }
+        flow2Ocean(matrix, m, n, flow2Pac, visitedPac);
+        flow2Ocean(matrix, m, n, flow2Atl, visitedAtl);
+        for(int i=0;i<m;i++){
+            for(int j=0;j<n;j++){
+                if(visitedPac[i][j] && visitedAtl[i][j]){
+                    list.add(new Grid(i,j).toArray());
+                }
+            }
+        }
+        return list;
+    }
+    public void flow2Ocean(int[][] matrix, int m, int n, Queue<Grid> flow2Ocean, boolean[][] visitedPac){
+        while(!flow2Ocean.isEmpty()){
+            Grid gr = flow2Ocean.poll();
+            if(gr.low+1<m && !visitedPac[gr.low+1][gr.col] && matrix[gr.low+1][gr.col]>=matrix[gr.low][gr.col]){
+                flow2Ocean.offer(new Grid(gr.low+1, gr.col));
+                visitedPac[gr.low+1][gr.col] = true;
+            }
+            if(gr.low-1>=0 && !visitedPac[gr.low-1][gr.col] && matrix[gr.low-1][gr.col]>=matrix[gr.low][gr.col]){
+                flow2Ocean.offer(new Grid(gr.low-1, gr.col));
+                visitedPac[gr.low-1][gr.col] = true;
+            }
+            if(gr.col+1<n && !visitedPac[gr.low][gr.col+1] && matrix[gr.low][gr.col+1]>=matrix[gr.low][gr.col]){
+                flow2Ocean.offer(new Grid(gr.low, gr.col+1));
+                visitedPac[gr.low][gr.col+1] = true;
+            }
+            if(gr.col-1>=0 && !visitedPac[gr.low][gr.col-1] && matrix[gr.low][gr.col-1]>=matrix[gr.low][gr.col]){
+                flow2Ocean.offer(new Grid(gr.low, gr.col-1));
+                visitedPac[gr.low][gr.col-1] = true;
+            }
+        }
+        
+    }
+}
