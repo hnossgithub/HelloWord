@@ -1,0 +1,83 @@
+/**
+Given a list of airline tickets represented by pairs of departure and arrival airports [from, to], reconstruct the itinerary in order. All of the tickets belong to a man who departs from JFK. Thus, the itinerary must begin with JFK.
+
+Note:
+If there are multiple valid itineraries, you should return the itinerary that has the smallest lexical order when read as a single string. For example, the itinerary ["JFK", "LGA"] has a smaller lexical order than ["JFK", "LGB"].
+All airports are represented by three capital letters (IATA code).
+You may assume all tickets form at least one valid itinerary.
+Example 1:
+tickets = [["MUC", "LHR"], ["JFK", "MUC"], ["SFO", "SJC"], ["LHR", "SFO"]]
+Return ["JFK", "MUC", "LHR", "SFO", "SJC"].
+Example 2:
+tickets = [["JFK","SFO"],["JFK","ATL"],["SFO","ATL"],["ATL","JFK"],["ATL","SFO"]]
+Return ["JFK","ATL","JFK","SFO","ATL","SFO"].
+Another possible reconstruction is ["JFK","SFO","ATL","JFK","ATL","SFO"]. But it is larger in lexical order.
+*/
+public class Solution {
+
+    public List<String> findItinerary(String[][] tickets) {
+        /*pseudocode:
+        traversal tickets, get the first departure, storage all the airports in a graph, every airport has arrival airports as children.
+        graph airports(Map)
+        airport's children(heap)
+        start at the first airport "JFK", 
+        visit its first child, remove it from heap.depth-first until no child exist, 
+        [[!!IMPORTANT!!]] put the one which reaches the end first at the route tail;
+        */
+        List<String> res = new LinkedList<>();
+        if(tickets==null || tickets.length==0)   return res;
+        Graph g = new Graph();
+        for(int i=0;i<tickets.length;i++){
+            Airport dpt = g.addTicket(tickets[i][0],tickets[i][1]);
+        }
+        Airport curDpt = g.airportMap.get("JFK");
+        if(curDpt==null)    return res;
+        visit(curDpt, res);
+        return res;
+    }
+    void visit(Airport curDpt, List<String> route){
+        //[[!!IMPORTANT!!]]put the one which reaches the end first at the route tail;
+        while(!curDpt.arrivals.isEmpty()){
+            Airport arrv = curDpt.arrivals.poll();
+            visit(arrv, route);
+        }
+        route.add(0, curDpt.name);
+    }
+    class Graph{
+        Map<String, Airport> airportMap;
+        Graph(){
+            airportMap = new HashMap<>();
+        }
+        Airport addTicket(String dptName, String arrvName){
+            Airport dpt = airportMap.get(dptName);
+            Airport arrv = airportMap.get(arrvName);
+            if(dpt==null){
+                dpt = new Airport(dptName);
+                airportMap.put(dptName, dpt);
+            }
+            if(arrv==null){
+                arrv = new Airport(arrvName);
+                airportMap.put(arrvName, arrv);
+            }
+            dpt.arrivals.add(arrv);
+            return dpt;
+        }
+    }
+    class Airport implements Comparable<Airport>{
+        String name;
+        Queue<Airport> arrivals;
+        Airport(String name){
+            this.name = name;
+            arrivals = new PriorityQueue<>();
+        }
+        public int compareTo(Airport b){
+            if(this.name.charAt(0)!=b.name.charAt(0)){
+                return this.name.charAt(0)-b.name.charAt(0);
+            }
+            if(this.name.charAt(1)!=b.name.charAt(1)){
+                return this.name.charAt(1)-b.name.charAt(1);
+            }
+            return this.name.charAt(2)-b.name.charAt(2);
+        }
+    }
+}
