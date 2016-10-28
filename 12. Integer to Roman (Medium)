@@ -1,0 +1,54 @@
+/**
+Given an integer, convert it to a roman numeral.
+
+Input is guaranteed to be within the range from 1 to 3999.
+*/
+public class Solution {
+    /**
+     * a mind-blowing solution...
+    */
+    public String intToRoman(int num) {
+        String M[] = {"", "M", "MM", "MMM"};
+        String C[] = {"", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"};
+        String X[] = {"", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"};
+        String I[] = {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"};
+        return M[num/1000] + C[(num%1000)/100] + X[(num%100)/10] + I[num%10];
+    }
+/*    public String intToRoman(int num) {
+        int[][] ones = {{-1, -1}, {1000, 'M'}, {100, 'C'}, {10, 'X'}, {1,'I'}};
+        int[][] fives = {{-1, -1}, {500, 'D'}, {50, 'L'}, {5, 'V'}};
+        String res = "";
+        for(int i=1;i<ones.length;i++){
+            int n = num / ones[i][0];
+            res += gen129(n, (char)ones[i][1], (char)fives[i-1][1], (char)ones[i-1][1]);
+            num %= ones[i][0];
+        }
+        return res;
+    }
+    
+    public String gen129(int num, char one, char five, char ten){
+        String res="";
+        if(num<=3){
+            while(num>0){
+                res += one;
+                num -- ;
+            }
+        }
+        else if(num==4){
+            res += one;
+            res += five;
+        }
+        else if(num==9){
+            res += one;
+            res += ten;
+        }
+        else{
+            res += five;
+            while(num>5){
+                res += one;
+                num--;
+            }
+        }
+        return res;
+    }*/
+}
